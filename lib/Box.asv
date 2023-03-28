@@ -1,0 +1,58 @@
+classdef Box < Obstacle
+
+    properties(Access=private,Constant)
+        % define 8 vertices of a cube
+        v1 = [0  0  0]'
+        v2 = [1  0  0]'
+        v3 = [1  1  0]'
+        v4 = [0  1  0]'
+        v5 = [0  0  1]'
+        v6 = [1  0  1]'
+        v7 = [1  1  1]'
+        v8 = [0  1  1]'
+    end
+
+    properties
+        % basic box parameters
+        height =1% z-axis
+        width  =1 % x-axis
+        depth  =1% y-axis
+        scale  =eye(3)
+        baseVertices   = [Box.v1,Box.v2,Box.v3,Box.v4,Box.v5,Box.v6,Box.v7,Box.v8];
+        center         = [0;0;0]
+        rotationMatrix = eye(3);
+        connectivityMatrix =[1 2 3 4 1;5 6 7 8 5;1 2 6 5 1;2 6 7 3 2;3 7 8 4 3;1 5 8 4 1;]; % for drawing the patch
+    end
+    methods
+        function obj = Box(height,width,depth)
+            if nargin == 0
+                obj.height = 0;
+                obj.width  = 0;
+                obj.depth  = 0;
+            end
+            obj.height = height;
+            obj.width = width;
+            obj.depth = depth;
+
+            obj.scale  = diag([width,depth,height]);
+            obj.baseVertices   = obj.scale * [Box.v1,Box.v2,Box.v3,Box.v4,Box.v5,Box.v6,Box.v7,Box.v8];
+            obj.rotationMatrix = eye(3);
+        end
+        % setters and getters
+        function obj = set.rotationMatrix(obj,val)
+            if ~ismatrix(val)
+                error("input must be a matrix")
+            elseif abs(det(val)-1) >1e-6
+                error("Matrix must be a rotation matrix. Determinant seems to be not 1")
+            end
+            obj.rotationMatrix = val;
+        end
+
+        function obj = set.center(obj,val)
+            if isrow(val)
+                error("center must be a column vector of dimension three")
+            end
+            obj.center = val;
+        end
+    end
+end

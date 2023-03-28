@@ -1,0 +1,62 @@
+classdef Ellipsoid < Obstacle
+
+    properties
+        % basic box parameters
+        [X,Y,Z] = sphere(30);
+        spherePointsSize = size(X);
+        baseVertices   = [reshape(X,[],numel(X));reshape(Y,[],numel(Y));reshape(Z,[],numel(Z))];
+        center         
+        rotationMatrix 
+    end
+    methods
+        function obj = Ellipsoid(xDilation,yDilation,zDilation)
+            
+            % basic box parameters
+            [X,Y,Z] = sphere(30);
+            obj.spherePointsSize = size(X);
+            obj.baseVertices   = [reshape(X,[],numel(X));reshape(Y,[],numel(Y));reshape(Z,[],numel(Z))];
+            obj.center         = [0;0;0]
+            obj.rotationMatrix = eye(3);
+
+            if nargin == 0
+                obj.scale = eye(3);
+            else
+                obj.scale  = diag([xDilation,yDilation,zDilation]);
+            end
+
+            obj.baseVertices   = obj.scale * baseVertices;
+        end
+        function surface = getPlot(obj)
+            X = reshape(obj.baseVertices,obj.spherePointsSize(1,:));
+            Y = reshape(obj.baseVertices,obj.spherePointsSize(2,:));
+            Z = reshape(obj.baseVertices,obj.spherePointsSize(3,:));
+            
+            figure("Visible",false)
+            surface = surf(X,Y,Z);
+        end
+        function showMe(obj)
+            X = reshape(obj.baseVertices,obj.spherePointsSize(1,:));
+            Y = reshape(obj.baseVertices,obj.spherePointsSize(2,:));
+            Z = reshape(obj.baseVertices,obj.spherePointsSize(3,:));
+            
+            surf(X,Y,Z);
+        end
+
+        % setters and getters
+        function obj = set.rotationMatrix(obj,val)
+            if ~ismatrix(val)
+                error("input must be a matrix")
+            elseif abs(det(val)-1) >1e-6
+                error("Matrix must be a rotation matrix. Determinant seems to be not 1")
+            end
+            obj.rotationMatrix = val;
+        end
+
+        function obj = set.center(obj,val)
+            if isrow(val)
+                error("center must be a column vector of dimension three")
+            end
+            obj.center = val;
+        end
+    end
+end
